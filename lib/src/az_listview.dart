@@ -21,6 +21,7 @@ class AzListView extends StatefulWidget {
     this.susPosition,
     this.indexHintBuilder,
     this.indexBarData = kIndexBarData,
+    this.actualIndexBarData,
     this.indexBarWidth = kIndexBarWidth,
     this.indexBarHeight,
     this.indexBarItemHeight = kIndexBarItemHeight,
@@ -71,6 +72,9 @@ class AzListView extends StatefulWidget {
 
   /// Index data.
   final List<String> indexBarData;
+
+  /// Actual Index data.
+  final List<String>? actualIndexBarData;
 
   /// IndexBar Width.
   final double indexBarWidth;
@@ -145,16 +149,21 @@ class _AzListViewState extends State<AzListView> {
   void _scrollTopIndex(String tag) {
     int index = _getIndex(tag);
     if (index != -1) {
-      itemScrollController.jumpTo(index: index);
+      itemScrollController.scrollTo(
+          index: index,
+          duration: Duration(milliseconds: 100),
+          curve: Curves.easeIn);
     }
   }
 
   void _valueChanged() {
     IndexBarDragDetails details = dragListener.dragDetails.value;
     String tag = details.tag!;
+
     if (details.action == IndexBarDragDetails.actionDown ||
         details.action == IndexBarDragDetails.actionUpdate) {
       selectTag = tag;
+
       _scrollTopIndex(tag);
     }
   }
@@ -198,6 +207,7 @@ class _AzListViewState extends State<AzListView> {
           alignment: widget.indexBarAlignment,
           child: IndexBar(
             data: widget.indexBarData,
+            actualData: widget.actualIndexBarData,
             width: widget.indexBarWidth,
             height: widget.indexBarHeight,
             itemHeight: widget.indexBarItemHeight,
