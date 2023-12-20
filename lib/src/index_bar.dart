@@ -1,10 +1,11 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// IndexHintBuilder.
 typedef IndexHintBuilder = Widget Function(BuildContext context, String tag);
@@ -78,7 +79,6 @@ const List<String> kIndexBarData = const [
   'X',
   'Y',
   'Z',
-  '#'
 ];
 
 const double kIndexBarWidth = 30;
@@ -226,6 +226,7 @@ class IndexBar extends StatefulWidget {
   IndexBar({
     Key? key,
     this.data = kIndexBarData,
+    this.actualData,
     this.width = kIndexBarWidth,
     this.height,
     this.itemHeight = kIndexBarItemHeight,
@@ -239,6 +240,9 @@ class IndexBar extends StatefulWidget {
 
   /// Index data.
   final List<String> data;
+
+  /// Index actual data.
+  final List<String>? actualData;
 
   /// IndexBar width(def:30).
   final double width;
@@ -280,7 +284,7 @@ class _IndexBarState extends State<IndexBar> {
   @override
   void initState() {
     super.initState();
-    widget.indexBarDragNotifier?.dragDetails?.addListener(_valueChanged);
+    widget.indexBarDragNotifier?.dragDetails.addListener(_valueChanged);
     widget.controller?._attach(this);
   }
 
@@ -295,12 +299,15 @@ class _IndexBarState extends State<IndexBar> {
         widget.itemHeight / 2 -
         widget.options.indexHintHeight / 2;
 
+    if (!_isContainTag(indexTag)) return;
+
     if (_isActionDown()) {
       _addOverlay(context);
     } else {
-      _removeOverlay();
+      Timer(Duration(seconds: 1), () {
+        _removeOverlay();
+      });
     }
-
     if (widget.options.needRebuild) {
       if (widget.options.ignoreDragCancel &&
           action == IndexBarDragDetails.actionCancel) {
@@ -315,11 +322,18 @@ class _IndexBarState extends State<IndexBar> {
         action == IndexBarDragDetails.actionUpdate;
   }
 
+  bool _isContainTag(String tag) {
+    final actualData = widget.actualData ?? [];
+    final result = actualData.contains(tag);
+
+    return result;
+  }
+
   @override
   void dispose() {
     widget.controller?._detach();
     _removeOverlay();
-    widget.indexBarDragNotifier?.dragDetails?.removeListener(_valueChanged);
+    widget.indexBarDragNotifier?.dragDetails.removeListener(_valueChanged);
     super.dispose();
   }
 
@@ -340,6 +354,11 @@ class _IndexBarState extends State<IndexBar> {
     } else {
       child = Text('$tag', style: textStyle);
     }
+
+    if (!_isContainTag(tag)) {
+      return SizedBox.shrink();
+    }
+
     return Container(
       width: widget.options.indexHintWidth,
       height: widget.options.indexHintHeight,
@@ -385,7 +404,9 @@ class _IndexBarState extends State<IndexBar> {
             top: top,
             child: Material(
               color: Colors.transparent,
-              child: _buildIndexHint(ctx, indexTag),
+              child: FadeInUp(
+                  duration: Duration(milliseconds: 100),
+                  child: _buildIndexHint(ctx, indexTag)),
             ));
       });
       overlayState.insert(overlayEntry!);
@@ -405,6 +426,7 @@ class _IndexBarState extends State<IndexBar> {
     String tag = widget.data[index];
     Decoration? decoration;
     TextStyle? textStyle;
+
     if (widget.options.downItemDecoration != null) {
       decoration = (_isActionDown() && selectIndex == index)
           ? widget.options.downItemDecoration
@@ -434,10 +456,19 @@ class _IndexBarState extends State<IndexBar> {
         color: textStyle?.color,
       );
     } else {
-      child = Text('$tag', style: textStyle);
+      const kV2Neutral600 = Color(0xFF525252);
+
+      final style = _isContainTag(tag)
+          ? textStyle
+          : textStyle?.copyWith(color: kV2Neutral600);
+
+      child = Text('$tag', style: style);
     }
 
     return Container(
+      padding: EdgeInsets.only(bottom: 1.w),
+      width: 24.w,
+      height: 16.w,
       alignment: Alignment.center,
       decoration: decoration,
       child: child,
