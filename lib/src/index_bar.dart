@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -304,7 +303,7 @@ class _IndexBarState extends State<IndexBar> {
     if (_isActionDown()) {
       _addOverlay(context);
     } else {
-      Timer(Duration(seconds: 1), () {
+      Timer(Duration(milliseconds: 2500), () {
         _removeOverlay();
       });
     }
@@ -404,9 +403,7 @@ class _IndexBarState extends State<IndexBar> {
             top: top,
             child: Material(
               color: Colors.transparent,
-              child: FadeInUp(
-                  duration: Duration(milliseconds: 100),
-                  child: _buildIndexHint(ctx, indexTag)),
+              child: _buildIndexHint(ctx, indexTag),
             ));
       });
       overlayState.insert(overlayEntry!);

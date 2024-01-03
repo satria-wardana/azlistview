@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   # https://pub.flutter-io.cn/packages/scrollable_positioned_list
   scrollable_positioned_list: 0.2.3
-  animate_do: 3.1.2
   flutter_screenutil: 5.9.0
 
 dev_dependencies:
