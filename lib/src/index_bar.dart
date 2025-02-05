@@ -115,8 +115,11 @@ class IndexBarOptions {
     this.color,
     this.downColor,
     this.decoration,
+    this.disabledDecoration,
     this.downDecoration,
     this.textStyle = const TextStyle(fontSize: 12, color: Color(0xFF666666)),
+    this.disabledTextStyle =
+        const TextStyle(fontSize: 12, color: Color(0xFF666666)),
     this.downTextStyle,
     this.selectTextStyle,
     this.downItemDecoration,
@@ -155,11 +158,17 @@ class IndexBarOptions {
   /// IndexBar decoration.
   final Decoration? decoration;
 
+  /// IndexBar disabled decoration.
+  final Decoration? disabledDecoration;
+
   /// IndexBar down decoration.
   final Decoration? downDecoration;
 
   /// IndexBar textStyle.
   final TextStyle textStyle;
+
+  /// IndexBar disabledTextStyle.
+  final TextStyle disabledTextStyle;
 
   /// IndexBar down textStyle.
   final TextStyle? downTextStyle;
@@ -453,18 +462,20 @@ class _IndexBarState extends State<IndexBar> {
         color: textStyle?.color,
       );
     } else {
-      const kV2Neutral600 = Color(0xFF525252);
+      var style = textStyle;
 
-      final style = _isContainTag(tag)
-          ? textStyle
-          : textStyle?.copyWith(color: kV2Neutral600);
+      if (!_isContainTag(tag)) {
+        style = widget.options.disabledTextStyle;
+        decoration = widget.options.disabledDecoration;
+      }
 
       child = Text('$tag', style: style);
     }
 
     return Container(
-      padding: EdgeInsets.only(bottom: 1.w),
-      width: 24.w,
+      margin: EdgeInsets.only(bottom: 4).w,
+      padding: EdgeInsets.symmetric(vertical: 1).w,
+      width: 16.w,
       height: 16.w,
       alignment: Alignment.center,
       decoration: decoration,
