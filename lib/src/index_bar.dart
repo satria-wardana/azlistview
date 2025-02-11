@@ -473,7 +473,6 @@ class _IndexBarState extends State<IndexBar> {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: 4).w,
       padding: EdgeInsets.symmetric(vertical: 1).w,
       width: 16.w,
       height: 16.w,
